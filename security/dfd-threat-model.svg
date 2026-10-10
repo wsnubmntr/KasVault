@@ -1,0 +1,73 @@
+
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="760" viewBox="0 0 1100 760">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#2563eb"/>
+    </marker>
+    <style>
+      .title { font: bold 28px Arial; fill: #14233b; }
+      .label { font: bold 18px Arial; fill: #14233b; }
+      .small { font: 14px Arial; fill: #334155; }
+      .entity { fill: #eff6ff; stroke: #2563eb; stroke-width: 2; }
+      .process { fill: #f5f3ff; stroke: #7c3aed; stroke-width: 2; }
+      .store { fill: #f0fdf4; stroke: #15803d; stroke-width: 2; }
+      .boundary { fill: none; stroke: #dc2626; stroke-width: 2.5; stroke-dasharray: 10 7; }
+      .flow { fill: none; stroke: #2563eb; stroke-width: 2.5; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect width="1100" height="760" fill="#ffffff"/>
+  <text x="550" y="42" text-anchor="middle" class="title">DFD Threat Modeling — KasVault</text>
+  <text x="550" y="68" text-anchor="middle" class="small">Rancangan konseptual untuk Tugas 1 Keamanan Komputasi dan Siber</text>
+
+  <rect x="30" y="105" width="1040" height="535" class="boundary" rx="18"/>
+  <text x="50" y="132" class="small" fill="#dc2626">TB-1: Trust boundary sistem KasVault</text>
+
+  <rect x="65" y="240" width="190" height="105" class="entity" rx="12"/>
+  <text x="160" y="275" text-anchor="middle" class="label">Pengguna</text>
+  <text x="160" y="302" text-anchor="middle" class="small">Bendahara / Anggota</text>
+  <text x="160" y="324" text-anchor="middle" class="small">Browser</text>
+
+  <rect x="365" y="210" width="270" height="165" class="process" rx="12"/>
+  <text x="500" y="245" text-anchor="middle" class="label">Aplikasi KasVault</text>
+  <text x="500" y="275" text-anchor="middle" class="small">Antarmuka web</text>
+  <text x="500" y="300" text-anchor="middle" class="small">Validasi data</text>
+  <text x="500" y="325" text-anchor="middle" class="small">Autentikasi dan hak akses*</text>
+  <text x="500" y="350" text-anchor="middle" class="small">*Direncanakan</text>
+
+  <rect x="770" y="235" width="235" height="125" class="store" rx="12"/>
+  <text x="887" y="270" text-anchor="middle" class="label">Database</text>
+  <text x="887" y="298" text-anchor="middle" class="small">Akun dan transaksi</text>
+  <text x="887" y="322" text-anchor="middle" class="small">Iuran dan laporan*</text>
+  <text x="887" y="344" text-anchor="middle" class="small">*Direncanakan</text>
+
+  <path d="M255 265 L365 265" class="flow"/>
+  <text x="310" y="244" text-anchor="middle" class="small">Permintaan</text>
+  <path d="M365 320 L255 320" class="flow"/>
+  <text x="310" y="342" text-anchor="middle" class="small">Respons</text>
+
+  <path d="M635 260 L770 260" class="flow"/>
+  <text x="702" y="239" text-anchor="middle" class="small">Baca / tulis</text>
+  <path d="M770 325 L635 325" class="flow"/>
+
+  <rect x="75" y="430" width="285" height="145" fill="#fff7ed" stroke="#c2410c" stroke-width="2" rx="12"/>
+  <text x="217" y="462" text-anchor="middle" class="label">Data yang Dilindungi</text>
+  <text x="217" y="490" text-anchor="middle" class="small">Password: hashing</text>
+  <text x="217" y="515" text-anchor="middle" class="small">Komunikasi: HTTPS*</text>
+  <text x="217" y="540" text-anchor="middle" class="small">Enkripsi jika diperlukan</text>
+
+  <rect x="405" y="430" width="285" height="145" fill="#f8fafc" stroke="#64748b" stroke-width="2" rx="12"/>
+  <text x="547" y="462" text-anchor="middle" class="label">Aset Pendukung</text>
+  <text x="547" y="490" text-anchor="middle" class="small">Secrets dan kunci*</text>
+  <text x="547" y="515" text-anchor="middle" class="small">Backup dan log*</text>
+  <text x="547" y="540" text-anchor="middle" class="small">*Jika diimplementasikan</text>
+
+  <rect x="735" y="430" width="270" height="145" fill="#fef2f2" stroke="#dc2626" stroke-width="2" rx="12"/>
+  <text x="870" y="462" text-anchor="middle" class="label">Risiko yang Dikaji</text>
+  <text x="870" y="490" text-anchor="middle" class="small">Akses tanpa izin</text>
+  <text x="870" y="515" text-anchor="middle" class="small">Perubahan transaksi</text>
+  <text x="870" y="540" text-anchor="middle" class="small">Kebocoran data</text>
+
+  <text x="550" y="675" text-anchor="middle" class="small">TB-1 membedakan lingkungan pengguna dari komponen sistem KasVault.</text>
+  <text x="550" y="700" text-anchor="middle" class="small">Diagram perlu diperbarui mengikuti arsitektur yang benar-benar diimplementasikan.</text>
+</svg>
