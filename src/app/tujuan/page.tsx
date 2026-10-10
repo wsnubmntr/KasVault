@@ -3,8 +3,11 @@
 
 import { useState } from "react";
 import AppNavigation from "../components/AppNavigation";
+import PageHeader from "../components/PageHeader";
+import FormField from "../components/FormField";
+import StatCard from "../components/StatCard";
 
-type Goal = {
+type Tujuan = {
   id: number;
   name: string;
   description: string;
@@ -13,108 +16,119 @@ type Goal = {
   deadline: string;
 };
 
-const initialGoals: Goal[] = [
+const dataAwal: Tujuan[] = [
   {
     id: 1,
-    name: "Liburan Akhir Semester",
-    description: "Liburan bersama seluruh anggota organisasi",
+    name: "Liburan Bersama",
+    description: "Dana untuk liburan bersama teman-teman.",
     target: 5000000,
     collected: 3250000,
     deadline: "2026-12-20",
   },
   {
     id: 2,
-    name: "Makrab Organisasi",
-    description: "Kegiatan malam keakraban anggota",
+    name: "Acara Makrab",
+    description: "Dana untuk kegiatan malam keakraban.",
     target: 3000000,
     collected: 1200000,
-    deadline: "2027-01-15",
+    deadline: "2026-11-30",
   },
 ];
 
-function formatRupiah(amount: number) {
+function formatRupiah(nominal: number) {
   return new Intl.NumberFormat("id-ID", {
     style: "currency",
     currency: "IDR",
     maximumFractionDigits: 0,
-  }).format(amount);
+  }).format(nominal);
 }
 
-function formatTanggal(date: string) {
-  if (!date) return "-";
+function formatTanggal(tanggal: string) {
+  if (!tanggal) return "-";
 
-  return new Intl.DateTimeFormat("id-ID", {
+  const [tahun, bulan, hari] = tanggal.split("-").map(Number);
+
+  return new Date(tahun, bulan - 1, hari).toLocaleDateString("id-ID", {
     day: "numeric",
     month: "long",
     year: "numeric",
-  }).format(new Date(`${date}T12:00:00`));
+  });
 }
 
-function GoalCard({ goal }: { goal: Goal }) {
-  const percentage =
+function getTanggalHariIni() {
+  const sekarang = new Date();
+  const tahun = sekarang.getFullYear();
+  const bulan = String(sekarang.getMonth() + 1).padStart(2, "0");
+  const tanggal = String(sekarang.getDate()).padStart(2, "0");
+
+  return `${tahun}-${bulan}-${tanggal}`;
+}
+
+function GoalCard({ goal }: { goal: Tujuan }) {
+  const persentase =
     goal.target > 0
-      ? Math.min(Math.round((goal.collected / goal.target) * 100), 100)
+      ? Math.min((goal.collected / goal.target) * 100, 100)
       : 0;
 
   return (
-    <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="flex flex-wrap items-start justify-between gap-3">
+    <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md">
+      <div className="flex items-start justify-between gap-3">
         <div>
-          <h3 className="text-lg font-bold text-slate-900">{goal.name}</h3>
-          <p className="mt-1 text-sm text-slate-500">{goal.description}</p>
+          <h3 className="text-lg font-bold text-slate-800">{goal.name}</h3>
+          <p className="mt-1 text-sm leading-6 text-slate-500">
+            {goal.description}
+          </p>
         </div>
 
-        <span className="rounded-lg bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-700">
-          {percentage}% tercapai
+        <span className="shrink-0 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+          {Math.round(persentase)}%
         </span>
       </div>
 
-      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div>
-          <p className="text-sm text-slate-500">Dana terkumpul</p>
-          <p className="mt-1 text-lg font-bold text-emerald-700">
+      <div className="mt-5">
+        <div className="mb-2 flex items-center justify-between gap-3 text-sm">
+          <span className="text-slate-500">Dana terkumpul</span>
+          <span className="font-semibold text-slate-800">
             {formatRupiah(goal.collected)}
-          </p>
+          </span>
         </div>
 
-        <div>
-          <p className="text-sm text-slate-500">Target dana</p>
-          <p className="mt-1 text-lg font-bold text-slate-900">
-            {formatRupiah(goal.target)}
-          </p>
-        </div>
-      </div>
-
-      <div
-        className="mt-4 h-3 overflow-hidden rounded-full bg-slate-100"
-        role="progressbar"
-        aria-label={`Progres ${goal.name}`}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={percentage}
-      >
         <div
-          className="h-full rounded-full bg-emerald-500"
-          style={{ width: `${percentage}%` }}
-        />
+          className="h-2.5 w-full overflow-hidden rounded-full bg-slate-100"
+          role="progressbar"
+          aria-label={`Progress tujuan ${goal.name}`}
+          aria-valuenow={Math.round(persentase)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
+          <div
+            className="h-full rounded-full bg-emerald-500 transition-all"
+            style={{ width: `${persentase}%` }}
+          />
+        </div>
+
+        <div className="mt-2 flex flex-wrap justify-between gap-2 text-sm">
+          <span className="text-slate-500">
+            Target: {formatRupiah(goal.target)}
+          </span>
+          <span className="text-slate-500">
+            Sisa: {formatRupiah(Math.max(goal.target - goal.collected, 0))}
+          </span>
+        </div>
       </div>
 
-      <div className="mt-4 flex flex-wrap justify-between gap-2 border-t border-slate-100 pt-4 text-sm">
-        <span className="text-slate-500">Sisa kebutuhan dana</span>
-        <span className="font-semibold text-slate-800">
-          {formatRupiah(Math.max(goal.target - goal.collected, 0))}
-        </span>
+      <div className="mt-4 border-t border-slate-100 pt-4">
+        <p className="text-sm text-slate-500">
+          <span className="font-medium text-slate-700">Tenggat:</span>{" "}
+          {formatTanggal(goal.deadline)}
+        </p>
       </div>
-
-      <p className="mt-2 text-xs text-slate-500">
-        Tenggat waktu: {formatTanggal(goal.deadline)}
-      </p>
     </article>
   );
 }
 
 export default function TujuanPage() {
-  const [goals, setGoals] = useState<Goal[]>(initialGoals);
+  const [tujuan, setTujuan] = useState<Tujuan[]>(dataAwal);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [target, setTarget] = useState("");
@@ -122,248 +136,255 @@ export default function TujuanPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  const totalTarget = tujuan.reduce(
+    (total, item) => total + item.target,
+    0
+  );
+
+  const totalTerkumpul = tujuan.reduce(
+    (total, item) => total + item.collected,
+    0
+  );
+
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
     setSuccess("");
 
-    const numericTarget = Number(target);
+    const namaBersih = name.trim();
+    const deskripsiBersih = description.trim();
+    const nominalTarget = Number(target);
 
-    if (!name.trim()) {
-      setError("Nama tujuan keuangan wajib diisi.");
+    if (!namaBersih) {
+      setError("Nama tujuan wajib diisi.");
       return;
     }
 
-    if (!description.trim()) {
-      setError("Deskripsi tujuan wajib diisi.");
+    if (namaBersih.length < 3) {
+      setError("Nama tujuan minimal terdiri dari 3 karakter.");
       return;
     }
 
     if (
-      !target.trim() ||
-      !Number.isFinite(numericTarget) ||
-      numericTarget <= 0 ||
-      !Number.isSafeInteger(numericTarget)
+      !target ||
+      !Number.isSafeInteger(nominalTarget) ||
+      nominalTarget <= 0
     ) {
-      setError("Target dana harus berupa bilangan bulat lebih dari Rp0.");
+      setError("Target dana harus berupa nominal rupiah positif yang valid.");
       return;
     }
 
     if (!deadline) {
-      setError("Tenggat waktu wajib ditentukan.");
+      setError("Silakan tentukan tenggat waktu tujuan.");
       return;
     }
 
-    const selectedDate = new Date(`${deadline}T23:59:59`);
-
-    if (Number.isNaN(selectedDate.getTime()) || selectedDate < new Date()) {
-      setError("Tenggat waktu tidak boleh di masa lalu.");
+    if (deadline < getTanggalHariIni()) {
+      setError("Tenggat waktu tidak boleh sebelum tanggal hari ini.");
       return;
     }
 
-    const newGoal: Goal = {
+    const tujuanBaru: Tujuan = {
       id: Date.now(),
-      name: name.trim(),
-      description: description.trim(),
-      target: numericTarget,
+      name: namaBersih,
+      description: deskripsiBersih || "Tidak ada deskripsi.",
+      target: nominalTarget,
       collected: 0,
       deadline,
     };
 
-    setGoals((previous) => [newGoal, ...previous]);
+    setTujuan((daftarSebelumnya) => [...daftarSebelumnya, tujuanBaru]);
     setName("");
     setDescription("");
     setTarget("");
     setDeadline("");
-    setSuccess("Tujuan keuangan berhasil ditambahkan ke data simulasi.");
+    setSuccess("Tujuan keuangan berhasil ditambahkan.");
   }
 
-  const totalTarget = goals.reduce((total, goal) => total + goal.target, 0);
-  const totalCollected = goals.reduce(
-    (total, goal) => total + goal.collected,
-    0
-  );
-
   return (
-    <main className="min-h-screen bg-slate-50 p-4 text-slate-800 sm:p-6 lg:p-8">
-      <div className="mx-auto max-w-6xl">
-        <AppNavigation />
+    <div className="min-h-screen bg-slate-50 text-slate-800">
+      <AppNavigation />
 
-        <header className="mb-8 mt-5">
-          <p className="text-sm text-slate-500">KasVault / Perencanaan</p>
-          <h1 className="mt-2 text-3xl font-bold text-slate-900">
-            Tujuan Keuangan
-          </h1>
-          <p className="mt-2 text-sm text-slate-500">
-            Rencanakan anggaran dan pantau dana untuk kegiatan organisasi.
+      <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <div className="mb-8 mt-5">
+          <p className="mb-3 text-sm text-slate-500">
+            Dashboard / Tujuan Keuangan
           </p>
-        </header>
+
+          <PageHeader
+            title="Tujuan Keuangan"
+            description="Rencanakan kebutuhan bersama dan pantau perkembangan dana yang terkumpul."
+          />
+        </div>
 
         <section
           aria-label="Ringkasan tujuan keuangan"
-          className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3"
+          className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"
         >
-          <article className="rounded-2xl border border-slate-200 bg-white p-5">
-            <p className="text-sm text-slate-500">Jumlah tujuan</p>
-            <p className="mt-2 text-2xl font-bold text-slate-900">
-              {goals.length}
-            </p>
-          </article>
+          <StatCard
+            title="Jumlah Tujuan"
+            value={String(tujuan.length)}
+            description="Tujuan keuangan yang tercatat"
+            icon="🎯"
+            color="blue"
+          />
 
-          <article className="rounded-2xl border border-slate-200 bg-white p-5">
-            <p className="text-sm text-slate-500">Total target</p>
-            <p className="mt-2 text-xl font-bold text-slate-900">
-              {formatRupiah(totalTarget)}
-            </p>
-          </article>
+          <StatCard
+            title="Total Target"
+            value={formatRupiah(totalTarget)}
+            description="Total dana yang direncanakan"
+            icon="💰"
+            color="purple"
+          />
 
-          <article className="rounded-2xl border border-slate-200 bg-white p-5">
-            <p className="text-sm text-slate-500">Total terkumpul</p>
-            <p className="mt-2 text-xl font-bold text-emerald-700">
-              {formatRupiah(totalCollected)}
-            </p>
-          </article>
+          <StatCard
+            title="Dana Terkumpul"
+            value={formatRupiah(totalTerkumpul)}
+            description="Akumulasi dana dari semua tujuan"
+            icon="📈"
+            color="green"
+          />
         </section>
 
-        <section
-          aria-labelledby="form-title"
-          className="mb-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"
-        >
-          <h2 id="form-title" className="text-lg font-bold text-slate-900">
-            Buat Tujuan Baru
-          </h2>
-          <p className="mt-1 text-sm text-slate-500">
-            Tentukan kegiatan, target anggaran, dan tenggat waktunya.
-          </p>
-
-          <form onSubmit={handleSubmit} noValidate className="mt-6 space-y-5">
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-              <div>
-                <label
-                  htmlFor="goal-name"
-                  className="mb-2 block text-sm font-medium"
-                >
-                  Nama tujuan
-                </label>
-                <input
-                  id="goal-name"
-                  name="name"
-                  value={name}
-                  onChange={(event) => setName(event.target.value)}
-                  placeholder="Contoh: Liburan bersama"
-                  className="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-100"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="goal-target"
-                  className="mb-2 block text-sm font-medium"
-                >
-                  Target anggaran (Rp)
-                </label>
-                <input
-                  id="goal-target"
-                  name="target"
-                  type="number"
-                  min="1"
-                  step="1"
-                  value={target}
-                  onChange={(event) => setTarget(event.target.value)}
-                  placeholder="Contoh: 5000000"
-                  className="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-100"
-                />
-              </div>
-
-              <div className="sm:col-span-2">
-                <label
-                  htmlFor="goal-description"
-                  className="mb-2 block text-sm font-medium"
-                >
-                  Deskripsi kegiatan
-                </label>
-                <textarea
-                  id="goal-description"
-                  name="description"
-                  rows={3}
-                  value={description}
-                  onChange={(event) => setDescription(event.target.value)}
-                  placeholder="Jelaskan tujuan pengumpulan dana ini"
-                  className="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-100"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="goal-deadline"
-                  className="mb-2 block text-sm font-medium"
-                >
-                  Tenggat waktu
-                </label>
-                <input
-                  id="goal-deadline"
-                  name="deadline"
-                  type="date"
-                  min="2026-10-10"
-                  value={deadline}
-                  onChange={(event) => setDeadline(event.target.value)}
-                  className="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-100"
-                />
-              </div>
+        <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-3">
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 lg:col-span-1">
+            <div className="mb-6">
+              <h2 className="text-lg font-bold text-slate-800">
+                Tambah Tujuan
+              </h2>
+              <p className="mt-1 text-sm leading-6 text-slate-500">
+                Buat target dana baru untuk kebutuhan bersama.
+              </p>
             </div>
 
-            {error && (
-              <p
-                role="alert"
-                className="rounded-lg bg-red-50 p-3 text-sm text-red-700"
+            <form onSubmit={handleSubmit} noValidate>
+              <div className="space-y-5">
+                <FormField label="Nama Tujuan" htmlFor="name">
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    value={name}
+                    onChange={(event) => setName(event.target.value)}
+                    placeholder="Contoh: Liburan Bersama"
+                    maxLength={80}
+                    aria-describedby={error ? "form-error" : undefined}
+                    className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                  />
+                </FormField>
+
+                <FormField label="Target Dana (Rp)" htmlFor="target">
+                  <input
+                    id="target"
+                    name="target"
+                    type="number"
+                    min="1"
+                    step="1"
+                    value={target}
+                    onChange={(event) => setTarget(event.target.value)}
+                    placeholder="Contoh: 5000000"
+                    aria-describedby={error ? "form-error" : undefined}
+                    className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                  />
+                </FormField>
+
+                <FormField label="Deskripsi" htmlFor="description">
+                  <textarea
+                    id="description"
+                    name="description"
+                    value={description}
+                    onChange={(event) => setDescription(event.target.value)}
+                    placeholder="Jelaskan tujuan penggunaan dana"
+                    rows={3}
+                    maxLength={250}
+                    className="w-full resize-y rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                  />
+                </FormField>
+
+                <FormField label="Tenggat Waktu" htmlFor="deadline">
+                  <input
+                    id="deadline"
+                    name="deadline"
+                    type="date"
+                    value={deadline}
+                    onChange={(event) => setDeadline(event.target.value)}
+                    aria-describedby={error ? "form-error" : undefined}
+                    className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                  />
+                </FormField>
+              </div>
+
+              {error && (
+                <p
+                  id="form-error"
+                  role="alert"
+                  className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+                >
+                  {error}
+                </p>
+              )}
+
+              {success && (
+                <p
+                  role="status"
+                  className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700"
+                >
+                  {success}
+                </p>
+              )}
+
+              <button
+                type="submit"
+                className="mt-5 w-full rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
               >
-                {error}
+                + Tambah Tujuan
+              </button>
+
+              <p className="mt-3 text-xs leading-5 text-slate-500">
+                Data saat ini disimpan sementara di browser dan akan kembali
+                ke data awal ketika halaman dimuat ulang.
               </p>
+            </form>
+          </section>
+
+          <section className="lg:col-span-2">
+            <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <h2 className="text-xl font-bold text-slate-800">
+                  Daftar Tujuan
+                </h2>
+                <p className="mt-1 text-sm text-slate-500">
+                  Pantau progres setiap target keuangan.
+                </p>
+              </div>
+
+              <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-sm font-medium text-emerald-700">
+                {tujuan.length} tujuan
+              </span>
+            </div>
+
+            {tujuan.length > 0 ? (
+              <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+                {tujuan.map((goal) => (
+                  <GoalCard key={goal.id} goal={goal} />
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-5 py-12 text-center">
+                <p className="text-3xl" aria-hidden="true">
+                  🎯
+                </p>
+                <h3 className="mt-3 font-semibold text-slate-800">
+                  Belum ada tujuan keuangan
+                </h3>
+                <p className="mt-2 text-sm text-slate-500">
+                  Tambahkan tujuan pertama melalui formulir di samping.
+                </p>
+              </div>
             )}
-
-            {success && (
-              <p
-                role="status"
-                className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-700"
-              >
-                {success}
-              </p>
-            )}
-
-            <button
-              type="submit"
-              className="w-full rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white transition hover:bg-emerald-800 focus-visible:outline-emerald-700 sm:w-auto"
-            >
-              + Tambah Tujuan
-            </button>
-          </form>
-        </section>
-
-        <section aria-labelledby="goal-list-title">
-          <div className="mb-4">
-            <h2
-              id="goal-list-title"
-              className="text-xl font-bold text-slate-900"
-            >
-              Daftar Tujuan Organisasi
-            </h2>
-            <p className="mt-1 text-sm text-slate-500">
-              Pantau dana terkumpul dan kebutuhan setiap kegiatan.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            {goals.map((goal) => (
-              <GoalCard key={goal.id} goal={goal} />
-            ))}
-          </div>
-        </section>
-
-        <p className="mt-8 text-xs leading-5 text-slate-500">
-          Catatan: tujuan keuangan masih menggunakan data simulasi. Data
-          tambahan tersimpan sementara selama halaman tidak dimuat ulang.
-        </p>
-      </div>
-    </main>
+          </section>
+        </div>
+      </main>
+    </div>
   );
 }

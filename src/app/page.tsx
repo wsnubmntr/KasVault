@@ -1,4 +1,7 @@
 
+import StatCard from "./components/StatCard";
+import GoalCard from "./components/GoalCard";
+
 type Transaction = {
   id: number;
   description: string;
@@ -70,111 +73,6 @@ function formatRupiah(amount: number) {
   }).format(amount);
 }
 
-function StatCard({
-  title,
-  value,
-  description,
-  icon,
-  color,
-}: {
-  title: string;
-  value: string;
-  description: string;
-  icon: string;
-  color: string;
-}) {
-  return (
-    <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-sm font-medium text-slate-600">{title}</p>
-          <p className="mt-3 text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
-            {value}
-          </p>
-        </div>
-        <span
-          aria-hidden="true"
-          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl ${color}`}
-        >
-          {icon}
-        </span>
-      </div>
-      <p className="mt-3 text-xs text-slate-600">{description}</p>
-    </article>
-  );
-}
-
-function GoalCard({
-  name,
-  description,
-  target,
-  collected,
-  deadline,
-  color,
-}: {
-  name: string;
-  description: string;
-  target: number;
-  collected: number;
-  deadline: string;
-  color: string;
-}) {
-  const percentage = Math.min(
-    Math.round((collected / target) * 100),
-    100
-  );
-
-  return (
-    <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h3 className="font-semibold text-slate-900">{name}</h3>
-          <p className="mt-1 text-sm text-slate-600">{description}</p>
-        </div>
-        <span className="rounded-lg bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
-          {percentage}% 
-        </span>
-      </div>
-
-      <div className="mt-5 flex items-end justify-between gap-3">
-        <div>
-          <p className="text-xs text-slate-600">Dana terkumpul</p>
-          <p className="mt-1 text-lg font-bold text-slate-900">
-            {formatRupiah(collected)}
-          </p>
-        </div>
-        <div className="text-right">
-          <p className="text-xs text-slate-600">Target dana</p>
-          <p className="mt-1 text-sm font-semibold text-slate-700">
-            {formatRupiah(target)}
-          </p>
-        </div>
-      </div>
-
-      <div
-        className="mt-4 h-2.5 overflow-hidden rounded-full bg-slate-100"
-        role="progressbar"
-        aria-label={`Progres dana ${name}`}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={percentage}
-      >
-        <div
-          className={`h-full rounded-full transition-all ${color}`}
-          style={{ width: `${percentage}%` }}
-        />
-      </div>
-
-      <div className="mt-3 flex flex-wrap justify-between gap-2 text-xs">
-        <span className="text-slate-600">
-          Kurang {formatRupiah(Math.max(target - collected, 0))}
-        </span>
-        <span className="text-slate-600">Batas: {deadline}</span>
-      </div>
-    </article>
-  );
-}
-
 export default function Home() {
   const totalIncome = transactions
     .filter((item) => item.type === "Pemasukan")
@@ -197,6 +95,7 @@ export default function Home() {
             >
               K
             </span>
+
             <span>
               <span className="block text-xl font-bold text-slate-900">
                 KasVault
@@ -217,25 +116,32 @@ export default function Home() {
               aria-current="page"
               className="flex items-center gap-3 rounded-xl bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700"
             >
-              <span aria-hidden="true">⌂</span> Dashboard
+              <span aria-hidden="true">⌂</span>
+              Dashboard
             </a>
+
             <a
               href="/transaksi"
               className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-slate-600 transition hover:bg-slate-100"
             >
-              <span aria-hidden="true">⇄</span> Transaksi
+              <span aria-hidden="true">⇄</span>
+              Transaksi
             </a>
+
             <a
               href="/tujuan"
               className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-slate-600 transition hover:bg-slate-100"
             >
-              <span aria-hidden="true">◎</span> Tujuan Keuangan
+              <span aria-hidden="true">◎</span>
+              Tujuan Keuangan
             </a>
+
             <a
               href="#riwayat"
               className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-slate-600 transition hover:bg-slate-100"
             >
-              <span aria-hidden="true">◷</span> Riwayat Aktivitas
+              <span aria-hidden="true">◷</span>
+              Riwayat Aktivitas
             </a>
           </nav>
 
@@ -245,21 +151,27 @@ export default function Home() {
               <br />
               Organisasi Terpercaya.
             </p>
+
             <p className="mt-2 text-xs leading-5 text-emerald-800">
               Kelola keuangan bersama dengan lebih transparan.
             </p>
           </div>
         </aside>
 
-        <main id="beranda" className="min-w-0 flex-1 p-4 sm:p-6 lg:p-8">
+        <main
+          id="beranda"
+          className="min-w-0 flex-1 p-4 sm:p-6 lg:p-8"
+        >
           <header className="mb-8 flex flex-wrap items-center justify-between gap-4">
             <div>
               <p className="text-sm text-slate-600">
                 Organisasi Mahasiswa
               </p>
+
               <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
                 Dashboard KasVault
               </h1>
+
               <p className="mt-2 text-sm text-slate-600">
                 Pantau kas dan capai tujuan organisasi bersama.
               </p>
@@ -272,16 +184,22 @@ export default function Home() {
               >
                 B
               </span>
+
               <div>
                 <p className="text-sm font-semibold text-slate-800">
                   Bendahara
                 </p>
-                <p className="text-xs text-slate-600">Pengelola kas</p>
+                <p className="text-xs text-slate-600">
+                  Pengelola kas
+                </p>
               </div>
             </div>
           </header>
 
-          <section aria-labelledby="ringkasan-title" className="mb-8">
+          <section
+            aria-labelledby="ringkasan-title"
+            className="mb-8"
+          >
             <div className="mb-4">
               <h2
                 id="ringkasan-title"
@@ -289,6 +207,7 @@ export default function Home() {
               >
                 Ringkasan Keuangan
               </h2>
+
               <p className="mt-1 text-sm text-slate-600">
                 Gambaran keuangan organisasi dari data simulasi.
               </p>
@@ -302,6 +221,7 @@ export default function Home() {
                 icon="◈"
                 color="bg-emerald-100 text-emerald-700"
               />
+
               <StatCard
                 title="Total Pemasukan"
                 value={formatRupiah(totalIncome)}
@@ -309,6 +229,7 @@ export default function Home() {
                 icon="↗"
                 color="bg-blue-100 text-blue-700"
               />
+
               <StatCard
                 title="Total Pengeluaran"
                 value={formatRupiah(totalExpense)}
@@ -316,6 +237,7 @@ export default function Home() {
                 icon="↘"
                 color="bg-orange-100 text-orange-700"
               />
+
               <StatCard
                 title="Anggota Organisasi"
                 value="30 orang"
@@ -326,7 +248,11 @@ export default function Home() {
             </div>
           </section>
 
-          <section id="tujuan" aria-labelledby="tujuan-title" className="mb-8">
+          <section
+            id="tujuan"
+            aria-labelledby="tujuan-title"
+            className="mb-8"
+          >
             <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
               <div>
                 <h2
@@ -335,10 +261,12 @@ export default function Home() {
                 >
                   Tujuan Keuangan
                 </h2>
+
                 <p className="mt-1 text-sm text-slate-600">
                   Lihat progres pengumpulan dana untuk kegiatan bersama.
                 </p>
               </div>
+
               <span className="rounded-lg bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700">
                 2 tujuan aktif
               </span>
@@ -364,12 +292,14 @@ export default function Home() {
                 >
                   Transaksi Terbaru
                 </h2>
+
                 <p className="mt-1 text-sm text-slate-600">
                   Catatan pemasukan dan pengeluaran organisasi.
                 </p>
               </div>
+
               <a
-                href="#transaksi"
+                href="/transaksi"
                 className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
               >
                 Lihat transaksi
@@ -381,6 +311,7 @@ export default function Home() {
                 <caption className="sr-only">
                   Daftar transaksi keuangan terbaru
                 </caption>
+
                 <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-600">
                   <tr>
                     <th scope="col" className="px-5 py-4 font-semibold">
@@ -392,26 +323,36 @@ export default function Home() {
                     <th scope="col" className="px-5 py-4 font-semibold">
                       Tanggal
                     </th>
-                    <th scope="col" className="px-5 py-4 text-right font-semibold">
+                    <th
+                      scope="col"
+                      className="px-5 py-4 text-right font-semibold"
+                    >
                       Jumlah
                     </th>
                   </tr>
                 </thead>
+
                 <tbody className="divide-y divide-slate-100">
                   {transactions.map((transaction) => (
-                    <tr key={transaction.id} className="hover:bg-slate-50">
+                    <tr
+                      key={transaction.id}
+                      className="hover:bg-slate-50"
+                    >
                       <th
                         scope="row"
                         className="px-5 py-4 font-medium text-slate-800"
                       >
                         {transaction.description}
                       </th>
+
                       <td className="px-5 py-4 text-slate-600">
                         {transaction.category}
                       </td>
+
                       <td className="whitespace-nowrap px-5 py-4 text-slate-600">
                         {transaction.date}
                       </td>
+
                       <td
                         className={`whitespace-nowrap px-5 py-4 text-right font-semibold ${
                           transaction.type === "Pemasukan"
@@ -437,8 +378,8 @@ export default function Home() {
                   Transparansi kas:
                 </span>{" "}
                 Riwayat aktivitas dan verifikasi perubahan transaksi akan
-                dikembangkan pada tahap berikutnya. Seluruh data pada halaman
-                ini masih berupa simulasi.
+                dikembangkan pada tahap berikutnya. Seluruh data pada
+                halaman ini masih berupa simulasi.
               </p>
             </div>
           </section>

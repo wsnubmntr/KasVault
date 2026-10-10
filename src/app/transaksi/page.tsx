@@ -3,6 +3,8 @@
 
 import { useState } from "react";
 import AppNavigation from "../components/AppNavigation";
+import PageHeader from "../components/PageHeader";
+import FormField from "../components/FormField";
 
 type Transaction = {
   id: number;
@@ -82,9 +84,10 @@ export default function TransaksiPage() {
     if (
       !amount.trim() ||
       !Number.isFinite(numericAmount) ||
-      numericAmount <= 0
+      numericAmount <= 0 ||
+      !Number.isSafeInteger(numericAmount)
     ) {
-      setError("Jumlah transaksi harus lebih dari Rp0.");
+      setError("Jumlah transaksi harus berupa bilangan bulat lebih dari Rp0.");
       return;
     }
 
@@ -114,15 +117,15 @@ export default function TransaksiPage() {
       <div className="mx-auto max-w-6xl">
         <AppNavigation />
 
-        <header className="mb-8 mt-5">
-          <p className="text-sm text-slate-500">KasVault / Keuangan</p>
-          <h1 className="mt-2 text-3xl font-bold text-slate-900">
-            Transaksi
-          </h1>
-          <p className="mt-2 text-sm text-slate-500">
-            Catat dan pantau pemasukan serta pengeluaran organisasi.
+        <div className="mb-8 mt-5">
+          <p className="mb-3 text-sm text-slate-500">
+            KasVault / Keuangan
           </p>
-        </header>
+          <PageHeader
+            title="Transaksi"
+            description="Catat dan pantau pemasukan serta pengeluaran organisasi."
+          />
+        </div>
 
         <section
           aria-labelledby="form-title"
@@ -137,30 +140,19 @@ export default function TransaksiPage() {
 
           <form onSubmit={handleSubmit} noValidate className="mt-6 space-y-5">
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-              <div>
-                <label
-                  htmlFor="description"
-                  className="mb-2 block text-sm font-medium"
-                >
-                  Nama transaksi
-                </label>
+              <FormField label="Nama transaksi" htmlFor="description">
                 <input
                   id="description"
                   name="description"
                   value={description}
                   onChange={(event) => setDescription(event.target.value)}
                   placeholder="Contoh: Iuran anggota"
+                  aria-invalid={Boolean(error && !description.trim())}
                   className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
                 />
-              </div>
+              </FormField>
 
-              <div>
-                <label
-                  htmlFor="amount"
-                  className="mb-2 block text-sm font-medium"
-                >
-                  Jumlah (Rp)
-                </label>
+              <FormField label="Jumlah (Rp)" htmlFor="amount">
                 <input
                   id="amount"
                   name="amount"
@@ -172,15 +164,9 @@ export default function TransaksiPage() {
                   placeholder="Contoh: 150000"
                   className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
                 />
-              </div>
+              </FormField>
 
-              <div>
-                <label
-                  htmlFor="type"
-                  className="mb-2 block text-sm font-medium"
-                >
-                  Jenis transaksi
-                </label>
+              <FormField label="Jenis transaksi" htmlFor="type">
                 <select
                   id="type"
                   name="type"
@@ -193,15 +179,9 @@ export default function TransaksiPage() {
                   <option value="Pemasukan">Pemasukan</option>
                   <option value="Pengeluaran">Pengeluaran</option>
                 </select>
-              </div>
+              </FormField>
 
-              <div>
-                <label
-                  htmlFor="category"
-                  className="mb-2 block text-sm font-medium"
-                >
-                  Kategori
-                </label>
+              <FormField label="Kategori" htmlFor="category">
                 <select
                   id="category"
                   name="category"
@@ -215,7 +195,7 @@ export default function TransaksiPage() {
                   <option value="Kegiatan">Kegiatan</option>
                   <option value="Lainnya">Lainnya</option>
                 </select>
-              </div>
+              </FormField>
             </div>
 
             {error && (
@@ -273,7 +253,7 @@ export default function TransaksiPage() {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {transactions.map((transaction) => (
-                  <tr key={transaction.id}>
+                  <tr key={transaction.id} className="hover:bg-slate-50">
                     <th
                       scope="row"
                       className="px-5 py-4 font-medium text-slate-800"
