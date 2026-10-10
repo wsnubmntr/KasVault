@@ -1,21 +1,23 @@
-# AI Usage Log — KasVault
+# AI Usage Log - KasVault
 
 ## Tujuan Penggunaan
 
-AI digunakan sebagai alat bantu untuk memahami instruksi tugas, menyusun rancangan awal inventaris aset, merancang DFD awal, dan memeriksa struktur dokumentasi proyek KasVault.
+AI digunakan sebagai sarana belajar dan referensi dalam proses pengembangan proyek KasVault. Penggunaan AI bertujuan untuk membantu memahami materi, mencari inspirasi, mengembangkan ide, serta memperoleh gambaran mengenai konsep keamanan yang dapat diterapkan pada proyek.
 
-## Bagian yang Dibantu AI
+## Bentuk Penggunaan
 
-- Penyusunan draf `security/assets.md`.
-- Penyusunan rancangan DFD awal pada `security/dfd-awal.svg`.
+- Membantu memahami konsep inventaris aset, DFD, STRIDE, dan penilaian risiko.
+- Mencari referensi dan inspirasi untuk pengembangan ide keamanan pada aplikasi KasVault.
+- Memberikan saran dan alternatif solusi terkait rancangan keamanan aplikasi.
+- Membantu memahami dan mengevaluasi dokumentasi proyek.
 
-## Verifikasi oleh Mahasiswa
+## Verifikasi
 
-Mahasiswa bertanggung jawab untuk membaca ulang instruksi dosen, memeriksa kesesuaian inventaris dengan kondisi aplikasi, menguji file diagram, dan memperbarui dokumentasi sesuai implementasi yang benar-benar tersedia.
+Informasi dan saran yang diperoleh dari AI ditinjau kembali dan disesuaikan dengan kebutuhan tugas serta perkembangan proyek. Keputusan akhir dan penyelesaian tugas tetap menjadi tanggung jawab mahasiswa.
 
 ## Batasan
 
-Dokumen dan diagram merupakan rancangan awal. Aset yang masih direncanakan tidak boleh dianggap telah diimplementasikan. Tidak ada kata sandi, token, kunci privat, secrets, atau data pribadi nyata yang dicantumkan dalam log ini.
+AI digunakan sebagai alat bantu belajar dan pengembangan ide. Rekomendasi yang diberikan tidak langsung dianggap sebagai bukti bahwa suatu fitur atau kontrol keamanan telah diterapkan dan berhasil diuji.
 
 ## Tanggal
 
