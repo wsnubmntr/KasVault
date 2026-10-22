@@ -1,4 +1,5 @@
 
+import Link from "next/link";
 import StatCard from "./components/StatCard";
 import GoalCard from "./components/GoalCard";
 
@@ -120,21 +121,21 @@ export default function Home() {
               Dashboard
             </a>
 
-            <a
+            <Link
               href="/transaksi"
               className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-slate-600 transition hover:bg-slate-100"
             >
               <span aria-hidden="true">⇄</span>
               Transaksi
-            </a>
+            </Link>
 
-            <a
+            <Link
               href="/tujuan"
               className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-slate-600 transition hover:bg-slate-100"
             >
               <span aria-hidden="true">◎</span>
               Tujuan Keuangan
-            </a>
+            </Link>
 
             <a
               href="#riwayat"
@@ -298,12 +299,12 @@ export default function Home() {
                 </p>
               </div>
 
-              <a
+              <Link
                 href="/transaksi"
                 className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
               >
                 Lihat transaksi
-              </a>
+              </Link>
             </div>
 
             <div className="overflow-x-auto">

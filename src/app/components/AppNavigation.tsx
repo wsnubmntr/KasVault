@@ -2,24 +2,27 @@
 "use client";
 
 import Link from "next/link";
+import { Suspense } from "react";
 import { usePathname } from "next/navigation";
 
 const menu = [
   { label: "Dashboard", href: "/" },
   { label: "Transaksi", href: "/transaksi" },
   { label: "Tujuan Keuangan", href: "/tujuan" },
+  { label: "Tentang", href: "/tentang" },
 ];
 
-export default function AppNavigation() {
+function NavigationLinks() {
   const pathname = usePathname();
 
   return (
-    <nav
-      aria-label="Navigasi utama"
-      className="mb-6 flex flex-wrap gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm"
-    >
+    <>
       {menu.map((item) => {
-        const active = pathname === item.href;
+        const active =
+          item.href === "/"
+            ? pathname === "/"
+            : pathname === item.href ||
+              pathname.startsWith(`${item.href}/`);
 
         return (
           <Link
@@ -36,6 +39,26 @@ export default function AppNavigation() {
           </Link>
         );
       })}
+    </>
+  );
+}
+
+export default function AppNavigation() {
+  return (
+    <nav
+      aria-label="Navigasi utama"
+      className="mb-6 flex flex-wrap gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm"
+    >
+      <Suspense
+        fallback={
+          <div
+            aria-label="Memuat navigasi"
+            className="h-11 w-full animate-pulse rounded-xl bg-slate-100 sm:w-64"
+          />
+        }
+      >
+        <NavigationLinks />
+      </Suspense>
     </nav>
   );
 }
