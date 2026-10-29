@@ -1,0 +1,40 @@
+﻿"use server";
+
+import { z } from "zod";
+import { redirect } from "next/navigation";
+import { skemaMasuk } from "@/lib/skema";
+import { buatSesi, hapusSesi } from "@/lib/sesi";
+import type { StatusForm } from "@/lib/status-form";
+
+export async function masuk(
+  _sebelumnya: StatusForm,
+  formData: FormData
+): Promise<StatusForm> {
+  const hasil = skemaMasuk.safeParse(Object.fromEntries(formData));
+
+  if (!hasil.success) {
+    return {
+      galat: z.flattenError(hasil.error).fieldErrors,
+      pesan: "Periksa kembali data login.",
+    };
+  }
+
+  const { email, kataSandi } = hasil.data;
+
+  if (
+    !process.env.DEMO_EMAIL ||
+    !process.env.DEMO_KATA_SANDI ||
+    email !== process.env.DEMO_EMAIL ||
+    kataSandi !== process.env.DEMO_KATA_SANDI
+  ) {
+    return { pesan: "Email atau kata sandi salah." };
+  }
+
+  await buatSesi(email);
+  redirect("/");
+}
+
+export async function keluar() {
+  await hapusSesi();
+  redirect("/masuk");
+}

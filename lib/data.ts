@@ -1,4 +1,7 @@
+
 import "server-only";
+
+import type { MasukanTransaksi } from "@/lib/skema";
 
 export type Transaction = {
   id: string;
@@ -46,4 +49,42 @@ export const transactions: Transaction[] = [
 
 export function getTransactionById(id: string) {
   return transactions.find((transaction) => transaction.id === id);
+}
+
+export function judulSudahAda(description: string) {
+  const dicari = description.trim().toLowerCase();
+
+  return transactions.some(
+    (transaction) =>
+      transaction.description.trim().toLowerCase() === dicari
+  );
+}
+
+export function tambahTransaksi(
+  masukan: MasukanTransaksi
+): Transaction {
+  const idBerikutnya =
+    Math.max(
+      0,
+      ...transactions.map((transaction) =>
+        Number(transaction.id.replace("TRX", ""))
+      )
+    ) + 1;
+
+  const transaksiBaru: Transaction = {
+    id: `TRX${String(idBerikutnya).padStart(3, "0")}`,
+    description: masukan.description,
+    category: masukan.category,
+    date: new Intl.DateTimeFormat("id-ID", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    }).format(new Date()),
+    amount: masukan.amount,
+    type: masukan.type,
+  };
+
+  transactions.unshift(transaksiBaru);
+
+  return transaksiBaru;
 }

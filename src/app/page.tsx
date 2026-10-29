@@ -2,6 +2,7 @@
 import Link from "next/link";
 import StatCard from "./components/StatCard";
 import GoalCard from "./components/GoalCard";
+import { keluar } from "./masuk/actions";
 
 type Transaction = {
   id: number;
@@ -125,7 +126,7 @@ export default function Home() {
               href="/transaksi"
               className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-slate-600 transition hover:bg-slate-100"
             >
-              <span aria-hidden="true">⇄</span>
+              <span aria-hidden="true">↔</span>
               Transaksi
             </Link>
 
@@ -146,7 +147,17 @@ export default function Home() {
             </a>
           </nav>
 
-          <div className="mt-auto rounded-2xl bg-emerald-50 p-4">
+          <form action={keluar} className="mb-4 mt-auto">
+  <button
+    type="submit"
+    className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+  >
+    <span aria-hidden="true">↪</span>
+    Keluar
+  </button>
+</form>
+
+<div className="rounded-2xl bg-emerald-50 p-4">
             <p className="text-sm font-semibold text-emerald-900">
               Kas Terjaga,
               <br />
@@ -219,7 +230,7 @@ export default function Home() {
                 title="Saldo Kas"
                 value={formatRupiah(balance)}
                 description="Selisih pemasukan dan pengeluaran"
-                icon="◈"
+                icon="◇"
                 color="bg-emerald-100 text-emerald-700"
               />
 
@@ -227,7 +238,7 @@ export default function Home() {
                 title="Total Pemasukan"
                 value={formatRupiah(totalIncome)}
                 description="Dari seluruh transaksi pemasukan"
-                icon="↗"
+                icon="↓"
                 color="bg-blue-100 text-blue-700"
               />
 
@@ -235,7 +246,7 @@ export default function Home() {
                 title="Total Pengeluaran"
                 value={formatRupiah(totalExpense)}
                 description="Dari seluruh transaksi pengeluaran"
-                icon="↘"
+                icon="↑"
                 color="bg-orange-100 text-orange-700"
               />
 
