@@ -10,3 +10,5 @@ coverage/
 Thumbs.db
 
 tsconfig.tsbuildinfo
+
+/generated/prisma

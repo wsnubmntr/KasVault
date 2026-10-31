@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Kas {
+  id         Int         @id @default(autoincrement())
+  nama       String      @unique
+  periode    String
+  saldoAwal  Decimal     @db.Decimal(12, 2)
+  dibuatPada DateTime    @default(now())
+  transaksi  Transaksi[]
+}
+
+model Transaksi {
+  id         Int            @id @default(autoincrement())
+  tanggal    DateTime       @default(now())
+  jenis      JenisTransaksi
+  deskripsi  String
+  kategori   String @default("Lainnya")
+  jumlah     Decimal        @db.Decimal(12, 2)
+  nomorBukti String
+  kasId      Int
+  kas        Kas            @relation(fields: [kasId], references: [id], onDelete: Restrict)
+
+  @@unique([kasId, nomorBukti])
+}
+
+enum JenisTransaksi {
+  PEMASUKAN
+  PENGELUARAN
+}
