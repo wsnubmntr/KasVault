@@ -12,3 +12,7 @@ Thumbs.db
 tsconfig.tsbuildinfo
 
 /generated/prisma
+
+# Kunci kriptografi KasVault
+*.key
+crypto-key.base64

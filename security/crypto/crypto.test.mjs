@@ -5,7 +5,6 @@ import { buatKunci, enkripsi, dekripsi } from "./crypto.mjs";
 
 test("enkripsi dan dekripsi transaksi berhasil", () => {
   const kunci = buatKunci();
-
   const transaksi = JSON.stringify({
     jenis: "pemasukan",
     nominal: 150000,
@@ -17,6 +16,9 @@ test("enkripsi dan dekripsi transaksi berhasil", () => {
 
   assert.equal(hasilDekripsi, transaksi);
   assert.notEqual(hasilEnkripsi.ciphertext, transaksi);
+  assert.equal(hasilEnkripsi.iv.length > 0, true);
+  assert.equal(hasilEnkripsi.tag.length > 0, true);
+  assert.equal(hasilEnkripsi.aad.length > 0, true);
 });
 
 test("teks kosong ditolak", () => {
@@ -62,3 +64,28 @@ test("authentication tag yang diubah ditolak", () => {
 
   assert.throws(() => dekripsi(dataDiubah, kunci));
 });
+
+test("AAD yang diubah ditolak", () => {
+  const kunci = buatKunci();
+  const hasilEnkripsi = enkripsi("Data transaksi rahasia", kunci);
+
+  const dataDiubah = {
+    ...hasilEnkripsi,
+    aad: Buffer.from("KasVault:DataLain:v1").toString("base64"),
+  };
+
+  assert.throws(() => dekripsi(dataDiubah, kunci));
+});
+
+test("panjang kunci yang tidak sesuai ditolak", () => {
+  const kunciSalah = cryptoRandomBytesUntukTes();
+
+  assert.throws(
+    () => enkripsi("Data transaksi", kunciSalah),
+    /Kunci harus berupa Buffer 32 byte/
+  );
+});
+
+function cryptoRandomBytesUntukTes() {
+  return Buffer.alloc(16);
+}

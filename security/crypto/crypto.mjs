@@ -5,6 +5,7 @@ const ALGORITMA = "aes-256-gcm";
 const PANJANG_KUNCI = 32;
 const PANJANG_IV = 12;
 const PANJANG_TAG = 16;
+const AAD = Buffer.from("KasVault:Transaksi:v1", "utf8");
 
 export function buatKunci() {
   return crypto.randomBytes(PANJANG_KUNCI);
@@ -20,7 +21,12 @@ export function enkripsi(teks, kunci) {
   }
 
   const iv = crypto.randomBytes(PANJANG_IV);
-  const cipher = crypto.createCipheriv(ALGORITMA, kunci, iv);
+
+  const cipher = crypto.createCipheriv(ALGORITMA, kunci, iv, {
+    authTagLength: PANJANG_TAG,
+  });
+
+  cipher.setAAD(AAD);
 
   const ciphertext = Buffer.concat([
     cipher.update(teks, "utf8"),
@@ -33,6 +39,7 @@ export function enkripsi(teks, kunci) {
     versi: 1,
     algoritma: ALGORITMA,
     iv: iv.toString("base64"),
+    aad: AAD.toString("base64"),
     tag: tag.toString("base64"),
     ciphertext: ciphertext.toString("base64"),
   };
@@ -47,6 +54,7 @@ export function dekripsi(data, kunci) {
     !data ||
     data.versi !== 1 ||
     data.algoritma !== ALGORITMA ||
+    data.aad !== AAD.toString("base64") ||
     typeof data.iv !== "string" ||
     typeof data.tag !== "string" ||
     typeof data.ciphertext !== "string"
@@ -68,7 +76,11 @@ export function dekripsi(data, kunci) {
     throw new Error("Format data terenkripsi tidak valid.");
   }
 
-  const decipher = crypto.createDecipheriv(ALGORITMA, kunci, iv);
+  const decipher = crypto.createDecipheriv(ALGORITMA, kunci, iv, {
+    authTagLength: PANJANG_TAG,
+  });
+
+  decipher.setAAD(AAD);
   decipher.setAuthTag(tag);
 
   const teks = Buffer.concat([
