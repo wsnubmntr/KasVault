@@ -16,3 +16,6 @@ tsconfig.tsbuildinfo
 # Kunci kriptografi KasVault
 *.key
 crypto-key.base64
+# File backup sementara
+*.backup
+*.backup.*

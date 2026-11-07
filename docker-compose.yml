@@ -1,0 +1,33 @@
+services:
+  kasvault:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kasvault-app
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+    expose:
+      - "3000"
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+      - /app/.next/cache:rw,noexec,nosuid,size=64m
+    pids_limit: 100
+    mem_limit: 512m
+    cpus: 1.0
+    networks:
+      - kasvault-net
+
+networks:
+  kasvault-net:
+    external: true
+    name: kasvault-net

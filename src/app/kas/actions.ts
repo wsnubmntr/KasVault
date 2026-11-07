@@ -5,7 +5,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "../../../lib/prisma";
-import { bacaSesi } from "@/lib/sesi";
+import { wajibRole } from "@/lib/akses";
 import { skemaKas } from "@/lib/skema";
 import type { StatusForm } from "@/lib/status-form";
 
@@ -13,11 +13,7 @@ export async function tambahKasAction(
   _sebelumnya: StatusForm,
   formData: FormData
 ): Promise<StatusForm> {
-  const sesi = await bacaSesi();
-
-  if (!sesi) {
-    redirect("/masuk");
-  }
+  await wajibRole("BENDAHARA");
 
   const mentah = Object.fromEntries(formData);
 
@@ -63,11 +59,7 @@ export async function ubahKasAction(
   _sebelumnya: StatusForm,
   formData: FormData
 ): Promise<StatusForm> {
-  const sesi = await bacaSesi();
-
-  if (!sesi) {
-    redirect("/masuk");
-  }
+  await wajibRole("BENDAHARA");
 
   const id = Number(formData.get("id"));
 
@@ -128,11 +120,7 @@ export async function hapusKasAction(
   _sebelumnya: StatusForm,
   formData: FormData
 ): Promise<StatusForm> {
-  const sesi = await bacaSesi();
-
-  if (!sesi) {
-    redirect("/masuk");
-  }
+  await wajibRole("BENDAHARA");
 
   const id = Number(formData.get("id"));
 

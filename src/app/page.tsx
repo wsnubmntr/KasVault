@@ -1,14 +1,14 @@
-﻿
+
 import { Suspense } from "react";
 import { connection } from "next/server";
-import { redirect } from "next/navigation";
+
 import Link from "next/link";
 
 import StatCard from "./components/StatCard";
 import GoalCard from "./components/GoalCard";
 import { keluar } from "./masuk/actions";
 import { prisma } from "../../lib/prisma";
-import { bacaSesi } from "@/lib/sesi";
+import { wajibLogin } from "@/lib/akses";
 
 function formatRupiah(amount: number) {
   return new Intl.NumberFormat("id-ID", {
@@ -39,12 +39,8 @@ async function DashboardContent() {
   // Menunggu request agar tidak dijalankan saat prerendering
   await connection();
 
-  // Memeriksa sesi login pengguna
-  const sesi = await bacaSesi();
-
-  if (!sesi) {
-    redirect("/masuk");
-  }
+  // Memeriksa sesi dan role pengguna
+  const sesi = await wajibLogin();
 
   // Mengambil seluruh transaksi dari database
   const dataTransaksi = await prisma.transaksi.findMany({
@@ -224,10 +220,10 @@ async function DashboardContent() {
 
               <div>
                 <p className="text-sm font-semibold text-slate-800">
-                  Bendahara
+                  {sesi.role === "BENDAHARA" ? "Bendahara" : "Anggota"}
                 </p>
                 <p className="text-xs text-slate-600">
-                  Pengelola kas
+                  {sesi.email}
                 </p>
               </div>
             </div>

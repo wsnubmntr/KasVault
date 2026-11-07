@@ -1,0 +1,1 @@
+﻿750 root:root /etc/sudoers.d

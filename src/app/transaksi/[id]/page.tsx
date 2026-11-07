@@ -2,10 +2,10 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { connection } from "next/server";
-import { redirect, notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 
 import { prisma } from "../../../../lib/prisma";
-import { bacaSesi } from "@/lib/sesi";
+import { wajibLogin } from "@/lib/akses";
 import AppNavigation from "../../components/AppNavigation";
 import PageHeader from "../../components/PageHeader";
 
@@ -49,11 +49,7 @@ async function TransactionDetailContent({
   await connection();
 
   // Memastikan pengguna sudah login
-  const sesi = await bacaSesi();
-
-  if (!sesi) {
-    redirect("/masuk");
-  }
+  const sesi = await wajibLogin();
 
   const { id } = await params;
 
@@ -95,7 +91,7 @@ async function TransactionDetailContent({
   return (
     <main className="min-h-screen bg-slate-50 p-4 text-slate-800 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-4xl">
-        <AppNavigation />
+        <AppNavigation role={sesi.role} />
 
         <div className="mb-8 mt-5">
           <p className="mb-3 text-sm text-slate-500">

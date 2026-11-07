@@ -1,9 +1,9 @@
-
 "use client";
 
 import Link from "next/link";
 import { Suspense } from "react";
 import { usePathname } from "next/navigation";
+import type { Role } from "@/lib/sesi";
 
 const menu = [
   { label: "Dashboard", href: "/" },
@@ -44,22 +44,33 @@ function NavigationLinks() {
   );
 }
 
-export default function AppNavigation() {
+export default function AppNavigation({ role }: { role: Role }) {
   return (
-    <nav
-      aria-label="Navigasi utama"
-      className="mb-6 flex flex-wrap gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm"
-    >
-      <Suspense
-        fallback={
-          <div
-            aria-label="Memuat navigasi"
-            className="h-11 w-full animate-pulse rounded-xl bg-slate-100 sm:w-64"
-          />
-        }
+    <div className="mb-6">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <span className="text-sm font-semibold text-slate-700">
+          KasVault
+        </span>
+        <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+          {role === "BENDAHARA" ? "Bendahara" : "Anggota"}
+        </span>
+      </div>
+
+      <nav
+        aria-label="Navigasi utama"
+        className="flex flex-wrap gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm"
       >
-        <NavigationLinks />
-      </Suspense>
-    </nav>
+        <Suspense
+          fallback={
+            <div
+              aria-label="Memuat navigasi"
+              className="h-11 w-full animate-pulse rounded-xl bg-slate-100 sm:w-64"
+            />
+          }
+        >
+          <NavigationLinks />
+        </Suspense>
+      </nav>
+    </div>
   );
 }

@@ -1,7 +1,5 @@
-
 import Link from "next/link";
 import { connection } from "next/server";
-import { redirect } from "next/navigation";
 
 import AppNavigation from "../components/AppNavigation";
 import PageHeader from "../components/PageHeader";
@@ -9,7 +7,7 @@ import TransaksiForm from "./TransaksiForm";
 import EditTransaksiForm from "./EditTransaksiForm";
 import HapusTransaksiButton from "./HapusTransaksiButton";
 import { prisma } from "../../../lib/prisma";
-import { bacaSesi } from "@/lib/sesi";
+import { wajibLogin } from "@/lib/akses";
 
 function formatRupiah(amount: number) {
   return new Intl.NumberFormat("id-ID", {
@@ -22,11 +20,8 @@ function formatRupiah(amount: number) {
 export default async function TransaksiPage() {
   await connection();
 
-  const sesi = await bacaSesi();
-
-  if (!sesi) {
-    redirect("/masuk");
-  }
+  const sesi = await wajibLogin();
+  const isBendahara = sesi.role === "BENDAHARA";
 
   const dataTransaksi = await prisma.transaksi.findMany({
     orderBy: {
@@ -53,7 +48,7 @@ export default async function TransaksiPage() {
   return (
     <main className="min-h-screen bg-slate-50 p-4 text-slate-800 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-6xl">
-        <AppNavigation />
+        <AppNavigation role={sesi.role} />
 
         <div className="mb-8 mt-5">
           <p className="mb-3 text-sm text-slate-500">
@@ -64,9 +59,19 @@ export default async function TransaksiPage() {
             title="Transaksi"
             description="Catat dan pantau pemasukan serta pengeluaran organisasi."
           />
+
+          <p className="mt-2 text-sm text-slate-500">
+            Login sebagai: <span className="font-semibold">{sesi.role}</span>
+          </p>
         </div>
 
-        <TransaksiForm />
+        {isBendahara && <TransaksiForm />}
+
+        {!isBendahara && (
+          <p className="mb-5 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800">
+            Anda masuk sebagai Anggota. Akses Anda hanya untuk melihat data transaksi.
+          </p>
+        )}
 
         <section
           aria-labelledby="list-title"
@@ -164,18 +169,22 @@ export default async function TransaksiPage() {
                             Detail
                           </Link>
 
-                          <EditTransaksiForm
-                            id={transaction.id}
-                            description={transaction.description}
-                            amount={String(transaction.amount)}
-                            type={transaction.type}
-                            category={transaction.category}
-                          />
+                          {isBendahara && (
+                            <>
+                              <EditTransaksiForm
+                                id={transaction.id}
+                                description={transaction.description}
+                                amount={String(transaction.amount)}
+                                type={transaction.type}
+                                category={transaction.category}
+                              />
 
-                          <HapusTransaksiButton
-                            id={transaction.id}
-                            description={transaction.description}
-                          />
+                              <HapusTransaksiButton
+                                id={transaction.id}
+                                description={transaction.description}
+                              />
+                            </>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -196,8 +205,7 @@ export default async function TransaksiPage() {
         </section>
 
         <p className="mt-5 text-xs leading-5 text-slate-500">
-          Catatan: seluruh transaksi disimpan secara permanen di database
-          PostgreSQL.
+          Catatan: seluruh transaksi disimpan secara permanen di database PostgreSQL.
         </p>
       </div>
     </main>

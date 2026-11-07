@@ -1,11 +1,11 @@
-﻿
+
 "use server";
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { skemaTransaksi } from "@/lib/skema";
-import { bacaSesi } from "@/lib/sesi";
+import { wajibRole } from "@/lib/akses";
 import { prisma } from "../../../lib/prisma";
 import type { StatusForm } from "@/lib/status-form";
 
@@ -13,11 +13,7 @@ export async function tambahTransaksiAction(
   _sebelumnya: StatusForm,
   formData: FormData
 ): Promise<StatusForm> {
-  const sesi = await bacaSesi();
-
-  if (!sesi) {
-    redirect("/masuk");
-  }
+  await wajibRole("BENDAHARA");
 
   const mentah = Object.fromEntries(formData);
 
@@ -84,11 +80,7 @@ export async function ubahTransaksiAction(
   _sebelumnya: StatusForm,
   formData: FormData
 ): Promise<StatusForm> {
-  const sesi = await bacaSesi();
-
-  if (!sesi) {
-    redirect("/masuk");
-  }
+  await wajibRole("BENDAHARA");
 
   const id = Number(formData.get("id"));
 
@@ -155,11 +147,7 @@ export async function hapusTransaksiAction(
   _sebelumnya: StatusForm,
   formData: FormData
 ): Promise<StatusForm> {
-  const sesi = await bacaSesi();
-
-  if (!sesi) {
-    redirect("/masuk");
-  }
+  await wajibRole("BENDAHARA");
 
   const id = Number(formData.get("id"));
 

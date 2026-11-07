@@ -1,4 +1,4 @@
-﻿import "server-only";
+import "server-only";
 
 import { randomUUID } from "node:crypto";
 import { cookies } from "next/headers";
@@ -6,8 +6,11 @@ import { cookies } from "next/headers";
 const NAMA_COOKIE = "sesi";
 const DELAPAN_JAM = 60 * 60 * 8;
 
+export type Role = "BENDAHARA" | "ANGGOTA";
+
 type DataSesi = {
   email: string;
+  role: Role;
   kedaluwarsa: number;
 };
 
@@ -18,11 +21,12 @@ const globalSesi = globalThis as typeof globalThis & {
 const penyimpanan =
   (globalSesi.penyimpananSesiKasVault ??= new Map<string, DataSesi>());
 
-export async function buatSesi(email: string) {
+export async function buatSesi(email: string, role: Role) {
   const idSesi = randomUUID();
 
   penyimpanan.set(idSesi, {
     email,
+    role,
     kedaluwarsa: Date.now() + DELAPAN_JAM * 1000,
   });
 
@@ -52,7 +56,10 @@ export async function bacaSesi() {
     return null;
   }
 
-  return { email: dataSesi.email };
+  return {
+    email: dataSesi.email,
+    role: dataSesi.role,
+  };
 }
 
 export async function hapusSesi() {
