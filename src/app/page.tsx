@@ -1,71 +1,14 @@
-
+﻿
+import { Suspense } from "react";
+import { connection } from "next/server";
+import { redirect } from "next/navigation";
 import Link from "next/link";
+
 import StatCard from "./components/StatCard";
 import GoalCard from "./components/GoalCard";
 import { keluar } from "./masuk/actions";
-
-type Transaction = {
-  id: number;
-  description: string;
-  category: string;
-  date: string;
-  amount: number;
-  type: "Pemasukan" | "Pengeluaran";
-};
-
-const transactions: Transaction[] = [
-  {
-    id: 1,
-    description: "Iuran anggota Oktober",
-    category: "Iuran",
-    date: "10 Okt 2026",
-    amount: 1500000,
-    type: "Pemasukan",
-  },
-  {
-    id: 2,
-    description: "Dana sponsor kegiatan",
-    category: "Sponsor",
-    date: "9 Okt 2026",
-    amount: 500000,
-    type: "Pemasukan",
-  },
-  {
-    id: 3,
-    description: "Pembelian perlengkapan",
-    category: "Operasional",
-    date: "8 Okt 2026",
-    amount: 250000,
-    type: "Pengeluaran",
-  },
-  {
-    id: 4,
-    description: "Pembayaran uang muka tempat",
-    category: "Kegiatan",
-    date: "7 Okt 2026",
-    amount: 300000,
-    type: "Pengeluaran",
-  },
-];
-
-const goals = [
-  {
-    name: "Liburan Akhir Semester",
-    description: "Target dana untuk liburan bersama",
-    target: 5000000,
-    collected: 3250000,
-    deadline: "20 Desember 2026",
-    color: "bg-emerald-500",
-  },
-  {
-    name: "Makrab Organisasi",
-    description: "Dana kegiatan malam keakraban",
-    target: 3000000,
-    collected: 1200000,
-    deadline: "15 Januari 2027",
-    color: "bg-blue-500",
-  },
-];
+import { prisma } from "../../lib/prisma";
+import { bacaSesi } from "@/lib/sesi";
 
 function formatRupiah(amount: number) {
   return new Intl.NumberFormat("id-ID", {
@@ -76,15 +19,89 @@ function formatRupiah(amount: number) {
 }
 
 export default function Home() {
-  const totalIncome = transactions
-    .filter((item) => item.type === "Pemasukan")
-    .reduce((total, item) => total + item.amount, 0);
+  return (
+    <Suspense
+      fallback={
+        <main
+          role="status"
+          className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-600"
+        >
+          Memuat Dashboard KasVault...
+        </main>
+      }
+    >
+      <DashboardContent />
+    </Suspense>
+  );
+}
 
-  const totalExpense = transactions
-    .filter((item) => item.type === "Pengeluaran")
-    .reduce((total, item) => total + item.amount, 0);
+async function DashboardContent() {
+  // Menunggu request agar tidak dijalankan saat prerendering
+  await connection();
 
+  // Memeriksa sesi login pengguna
+  const sesi = await bacaSesi();
+
+  if (!sesi) {
+    redirect("/masuk");
+  }
+
+  // Mengambil seluruh transaksi dari database
+  const dataTransaksi = await prisma.transaksi.findMany({
+    orderBy: {
+      tanggal: "desc",
+    },
+  });
+
+  // Menghitung total pemasukan
+  const totalIncome = dataTransaksi
+    .filter((item) => item.jenis === "PEMASUKAN")
+    .reduce((total, item) => total + Number(item.jumlah), 0);
+
+  // Menghitung total pengeluaran
+  const totalExpense = dataTransaksi
+    .filter((item) => item.jenis === "PENGELUARAN")
+    .reduce((total, item) => total + Number(item.jumlah), 0);
+
+  // Menghitung saldo berdasarkan transaksi
   const balance = totalIncome - totalExpense;
+
+  // Mengambil maksimal 5 transaksi terbaru
+  const transactions = dataTransaksi.slice(0, 5).map((transaksi) => ({
+    id: transaksi.id,
+    description: transaksi.deskripsi,
+    category: transaksi.kategori,
+    date: new Intl.DateTimeFormat("id-ID", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    }).format(transaksi.tanggal),
+    amount: Number(transaksi.jumlah),
+    type:
+      transaksi.jenis === "PEMASUKAN"
+        ? "Pemasukan"
+        : "Pengeluaran",
+  }));
+
+  // Data tujuan keuangan masih berupa simulasi
+  const goals = [
+    {
+      name: "Liburan Akhir Semester",
+      description: "Target dana untuk liburan bersama",
+      target: 5000000,
+      collected: 3250000,
+      deadline: "20 Desember 2026",
+      color: "bg-emerald-500",
+    },
+    {
+      name: "Makrab Organisasi",
+      description: "Dana kegiatan malam keakraban",
+      target: 3000000,
+      collected: 1200000,
+      deadline: "15 Januari 2027",
+      color: "bg-blue-500",
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800">
@@ -123,6 +140,14 @@ export default function Home() {
             </a>
 
             <Link
+              href="/kas"
+              className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-slate-600 transition hover:bg-slate-100"
+            >
+              <span aria-hidden="true">▤</span>
+              Kas
+            </Link>
+
+            <Link
               href="/transaksi"
               className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-slate-600 transition hover:bg-slate-100"
             >
@@ -148,16 +173,16 @@ export default function Home() {
           </nav>
 
           <form action={keluar} className="mb-4 mt-auto">
-  <button
-    type="submit"
-    className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
-  >
-    <span aria-hidden="true">↪</span>
-    Keluar
-  </button>
-</form>
+            <button
+              type="submit"
+              className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+            >
+              <span aria-hidden="true">↪</span>
+              Keluar
+            </button>
+          </form>
 
-<div className="rounded-2xl bg-emerald-50 p-4">
+          <div className="rounded-2xl bg-emerald-50 p-4">
             <p className="text-sm font-semibold text-emerald-900">
               Kas Terjaga,
               <br />
@@ -221,7 +246,7 @@ export default function Home() {
               </h2>
 
               <p className="mt-1 text-sm text-slate-600">
-                Gambaran keuangan organisasi dari data simulasi.
+                Ringkasan berdasarkan data transaksi PostgreSQL.
               </p>
             </div>
 
@@ -329,12 +354,15 @@ export default function Home() {
                     <th scope="col" className="px-5 py-4 font-semibold">
                       Transaksi
                     </th>
+
                     <th scope="col" className="px-5 py-4 font-semibold">
                       Kategori
                     </th>
+
                     <th scope="col" className="px-5 py-4 font-semibold">
                       Tanggal
                     </th>
+
                     <th
                       scope="col"
                       className="px-5 py-4 text-right font-semibold"
@@ -345,38 +373,49 @@ export default function Home() {
                 </thead>
 
                 <tbody className="divide-y divide-slate-100">
-                  {transactions.map((transaction) => (
-                    <tr
-                      key={transaction.id}
-                      className="hover:bg-slate-50"
-                    >
-                      <th
-                        scope="row"
-                        className="px-5 py-4 font-medium text-slate-800"
+                  {transactions.length > 0 ? (
+                    transactions.map((transaction) => (
+                      <tr
+                        key={transaction.id}
+                        className="hover:bg-slate-50"
                       >
-                        {transaction.description}
-                      </th>
+                        <th
+                          scope="row"
+                          className="px-5 py-4 font-medium text-slate-800"
+                        >
+                          {transaction.description}
+                        </th>
 
-                      <td className="px-5 py-4 text-slate-600">
-                        {transaction.category}
-                      </td>
+                        <td className="px-5 py-4 text-slate-600">
+                          {transaction.category}
+                        </td>
 
-                      <td className="whitespace-nowrap px-5 py-4 text-slate-600">
-                        {transaction.date}
-                      </td>
+                        <td className="whitespace-nowrap px-5 py-4 text-slate-600">
+                          {transaction.date}
+                        </td>
 
+                        <td
+                          className={`whitespace-nowrap px-5 py-4 text-right font-semibold ${
+                            transaction.type === "Pemasukan"
+                              ? "text-emerald-700"
+                              : "text-red-600"
+                          }`}
+                        >
+                          {transaction.type === "Pemasukan" ? "+" : "−"}
+                          {formatRupiah(transaction.amount)}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
                       <td
-                        className={`whitespace-nowrap px-5 py-4 text-right font-semibold ${
-                          transaction.type === "Pemasukan"
-                            ? "text-emerald-700"
-                            : "text-red-600"
-                        }`}
+                        colSpan={4}
+                        className="px-5 py-8 text-center text-slate-500"
                       >
-                        {transaction.type === "Pemasukan" ? "+" : "−"}
-                        {formatRupiah(transaction.amount)}
+                        Belum ada transaksi yang tercatat.
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>
@@ -389,9 +428,9 @@ export default function Home() {
                 <span className="font-semibold text-slate-700">
                   Transparansi kas:
                 </span>{" "}
-                Riwayat aktivitas dan verifikasi perubahan transaksi akan
-                dikembangkan pada tahap berikutnya. Seluruh data pada
-                halaman ini masih berupa simulasi.
+                Riwayat aktivitas dan verifikasi perubahan transaksi
+                akan dikembangkan pada tahap berikutnya. Data transaksi
+                pada Dashboard diambil langsung dari database PostgreSQL.
               </p>
             </div>
           </section>

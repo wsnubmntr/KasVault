@@ -34,6 +34,36 @@ export const skemaTransaksi = z.object({
 
 export type MasukanTransaksi = z.infer<typeof skemaTransaksi>;
 
+export const skemaKas = z.object({
+  nama: z
+    .string()
+    .trim()
+    .min(3, "Nama kas minimal 3 karakter.")
+    .max(100, "Nama kas maksimal 100 karakter."),
+
+  periode: z
+    .string()
+    .trim()
+    .min(4, "Periode wajib diisi.")
+    .max(20, "Periode maksimal 20 karakter."),
+
+  saldoAwal: z
+    .string()
+    .trim()
+    .min(1, "Saldo awal wajib diisi.")
+    .regex(/^-?\d+$/, "Saldo awal harus berupa angka bulat.")
+    .transform(Number)
+    .pipe(
+      z
+        .number()
+        .int("Saldo awal harus berupa bilangan bulat.")
+        .nonnegative("Saldo awal tidak boleh negatif.")
+        .max(1000000000, "Saldo awal maksimal Rp1.000.000.000.")
+    ),
+});
+
+export type MasukanKas = z.infer<typeof skemaKas>;
+
 export const skemaMasuk = z.object({
   email: z.email("Format email tidak valid."),
   kataSandi: z.string().min(8, "Kata sandi minimal 8 karakter."),

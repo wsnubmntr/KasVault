@@ -1,7 +1,15 @@
+
+import Link from "next/link";
+import { connection } from "next/server";
+import { redirect } from "next/navigation";
+
 import AppNavigation from "../components/AppNavigation";
 import PageHeader from "../components/PageHeader";
 import TransaksiForm from "./TransaksiForm";
+import EditTransaksiForm from "./EditTransaksiForm";
+import HapusTransaksiButton from "./HapusTransaksiButton";
 import { prisma } from "../../../lib/prisma";
+import { bacaSesi } from "@/lib/sesi";
 
 function formatRupiah(amount: number) {
   return new Intl.NumberFormat("id-ID", {
@@ -12,6 +20,14 @@ function formatRupiah(amount: number) {
 }
 
 export default async function TransaksiPage() {
+  await connection();
+
+  const sesi = await bacaSesi();
+
+  if (!sesi) {
+    redirect("/masuk");
+  }
+
   const dataTransaksi = await prisma.transaksi.findMany({
     orderBy: {
       tanggal: "desc",
@@ -19,7 +35,7 @@ export default async function TransaksiPage() {
   });
 
   const transactions = dataTransaksi.map((transaksi) => ({
-    id: String(transaksi.id),
+    id: transaksi.id,
     description: transaksi.deskripsi,
     category: transaksi.kategori,
     date: new Intl.DateTimeFormat("id-ID", {
@@ -70,7 +86,7 @@ export default async function TransaksiPage() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[560px] text-left text-sm">
+            <table className="w-full min-w-[1050px] text-left text-sm">
               <caption className="sr-only">
                 Daftar pemasukan dan pengeluaran organisasi
               </caption>
@@ -80,17 +96,17 @@ export default async function TransaksiPage() {
                   <th scope="col" className="px-5 py-4">
                     Nama transaksi
                   </th>
-
                   <th scope="col" className="px-5 py-4">
                     Kategori
                   </th>
-
                   <th scope="col" className="px-5 py-4">
                     Jenis
                   </th>
-
                   <th scope="col" className="px-5 py-4 text-right">
                     Jumlah
+                  </th>
+                  <th scope="col" className="px-5 py-4">
+                    Aksi
                   </th>
                 </tr>
               </thead>
@@ -107,7 +123,6 @@ export default async function TransaksiPage() {
                         className="px-5 py-4 font-medium text-slate-800"
                       >
                         {transaction.description}
-
                         <span className="mt-1 block text-xs font-normal text-slate-500">
                           {transaction.date}
                         </span>
@@ -139,12 +154,36 @@ export default async function TransaksiPage() {
                         {transaction.type === "Pemasukan" ? "+" : "−"}
                         {formatRupiah(transaction.amount)}
                       </td>
+
+                      <td className="px-5 py-4">
+                        <div className="flex items-center gap-2">
+                          <Link
+                            href={`/transaksi/${transaction.id}`}
+                            className="rounded-lg border border-blue-200 px-3 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-50"
+                          >
+                            Detail
+                          </Link>
+
+                          <EditTransaksiForm
+                            id={transaction.id}
+                            description={transaction.description}
+                            amount={String(transaction.amount)}
+                            type={transaction.type}
+                            category={transaction.category}
+                          />
+
+                          <HapusTransaksiButton
+                            id={transaction.id}
+                            description={transaction.description}
+                          />
+                        </div>
+                      </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
                     <td
-                      colSpan={4}
+                      colSpan={5}
                       className="px-5 py-10 text-center text-slate-500"
                     >
                       Belum ada transaksi yang tercatat.

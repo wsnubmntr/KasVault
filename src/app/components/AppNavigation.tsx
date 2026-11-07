@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 
 const menu = [
   { label: "Dashboard", href: "/" },
+  { label: "Kas", href: "/kas" },
   { label: "Transaksi", href: "/transaksi" },
   { label: "Tujuan Keuangan", href: "/tujuan" },
   { label: "Tentang", href: "/tentang" },
